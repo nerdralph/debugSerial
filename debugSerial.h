@@ -19,10 +19,8 @@
 // I/O register macros
 #define BIT(r,b)    (b)
 #define PORT(r,b)   (PORT ## r)
-#define DDR(r,b)    (DDR ## r)
 #define bit(io)     BIT(io)
 #define port(io)    PORT(io)
-#define ddr(io)     DDR(io)
 
 
 extern "C" void write_r18();
@@ -125,7 +123,7 @@ public:
         else dprintu8b16(u8);
     }
     void print(const __FlashStringHelper* str) { dprints_p(str); }
-    void print(const char* str)
+    void print(const char*) 
     {
         badArg("printed strings must be in flash");
     }
