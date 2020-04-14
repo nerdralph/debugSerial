@@ -2,7 +2,7 @@
 AVR Arduino tiny and fast bit-bang serial output library
 
 
-This library is for very high-speed (7-10 cycles/bit) serial output.  The default speed is 8 cycles/bit, or 1mbps at 8Mhz.  Bit-bang serial implementations must have interrupts disabled during transmit, so a high-speed implementation minimizes the impact on interrupt latency.  Most of the code is written in assembler for minimal code size.
+This library is for very high-speed (7-10 cycles/bit) serial output.  The default speed is 8 cycles/bit, or 1mbps at 8Mhz.  Bit-bang serial implementations must have interrupts disabled during transmit, so a high-speed implementation minimizes the impact on interrupt latency.  At the default 8 cycles per bit, the code to transmit a full frame including start and stop bits takes 84 cycles.  Most of the code is written in assembler to achieve the minimum possible code size.
 
 A subset of the standard Serial print methods are supported: flash strings, single characters, and bytes as HEX or DEC can be printed.  Methods not used will not consume any flash.  Flash size requirements are as follows:
 * print single characters: 28 bytes
