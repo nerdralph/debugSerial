@@ -1,6 +1,7 @@
 /* debug(transmit-only) uart
  * Ralph Doncaster 2020 open source MIT license
  * 20200412 v0.5
+ * 20200414 v0.6 - update printu8b16 to use r18
  */
 
 #pragma once
@@ -65,10 +66,8 @@ extern inline void dwrite(char ch)
 }
 
 
-// asm function in print.S
+// asm function in print.S - print string in flash
 extern "C" void printsp_z();
-
-// print string in flash
 extern inline void dprints_p(const __FlashStringHelper* s)
 {
     asm volatile (
@@ -80,23 +79,20 @@ extern inline void dprints_p(const __FlashStringHelper* s)
 }
 
 
-// asm function in print.S - print u8(r19) base16 (HEX)
-extern "C" void printu8b16_r19();
-
+// asm function in print.S - print u8(r18) base16 (HEX)
+extern "C" void printu8b16_r18();
 extern inline void dprintu8b16(uint8_t val)
 {
-    register char c asm("r19") = val;
+    register char c asm("r18") = val;
     asm volatile (
     "%~call %x1"
     : "+r" (c) 
-    : "i" (printu8b16_r19)
-    : "r18"
+    : "i" (printu8b16_r18)
     );
 }
 
 // asm function in print.S - print u8(r19) base10 (DEC)
 extern "C" void printu8b10_r19();
-
 extern inline void dprintu8b10(uint8_t val)
 {
     register char c asm("r19") = val;
@@ -123,10 +119,12 @@ public:
         else dprintu8b16(u8);
     }
     void print(const __FlashStringHelper* str) { dprints_p(str); }
+    /* badArg requires picoCore
     void print(const char*) 
     {
         badArg("printed strings must be in flash");
     }
+    */
 
     template<typename T>
     void println(const T& val)

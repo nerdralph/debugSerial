@@ -1,6 +1,7 @@
 ; Ralph Doncaster 2020 MIT License open source
 ; print functions
 ; uses external write_r18 function
+; 20200414 - working versions of print for u8b10, u8b16, and flash strings
 
 .macro addi Rd, K
     subi \Rd, -(\K)
@@ -8,7 +9,7 @@
 
 .section .text.printu8b10
 
-; print number in r19 as unsigned decimal (base 10): 13 instructions
+; print number in r19 as unsigned decimal (base 10): 17 instructions
 ; clobbers r18
 .global printu8b10_r19
 printu8b10_r19:
@@ -38,14 +39,13 @@ skip_leading0:
 
 .section .text.printu8b16
 
-; print number in r19 as unsigned hex (base 16): 10 instructions
-; clobbers r18
-.global printu8b16_r19
-printu8b16_r19:
-    mov r18, r19
+; print number in r18 as unsigned hex (base 16): 10 instructions
+.global printu8b16_r18
+printu8b16_r18:
+    push r18
     swap r18
     rcall nibbletohex                   ; convert hi digit
-    mov r18, r19
+    pop r18
     ; fall into nibbletohex to convert lo digit
 nibbletohex:
     andi r18, 0x0F
