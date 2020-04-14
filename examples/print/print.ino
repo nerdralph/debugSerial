@@ -1,5 +1,5 @@
 /* debugSerial example
- * Ralph Doncaster (nerdralph) MIT Licence open source
+ * Ralph Doncaster [nerdralph] 2020 MIT Licence open source
  */
 
 // default extra wait = 1 cycle (8 cycles/bit total)
