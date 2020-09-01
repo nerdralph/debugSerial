@@ -8,11 +8,15 @@ A subset of the standard Serial print methods are supported: flash strings, sing
 * print single characters: 28 bytes
 * print strings: 10 extra bytes
 * print u8 as HEX: 20 extra bytes
-* print u8 as DEC: 34 extra bytes
+* print u16 as DEC: 62 extra bytes
  
 ## Configuration
 
 To change the default baudrate, define DTXWAIT before including debugSerial.h.  Valid values of DTXWAIT are between 0 and 3, resulting in the range of 7-10 clock cycles per bit. 
 
 To set the transmit GPIO, define DBG_TX before including debugSerial.h.  The default is B,0 for output on PB0.
+
+## Examples
+
+Examples include clockProfile, a program which measures the characteristics of the internal RC oscillator using an external 1kHz reference clock.
 
