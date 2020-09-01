@@ -91,15 +91,15 @@ extern inline void dprintu8b16(uint8_t val)
     );
 }
 
-// asm function in print.S - print u8(r19) base10 (DEC)
-extern "C" void printu8b10_r19();
-extern inline void dprintu8b10(uint8_t val)
+// asm function in print.S - print u16(r21:20) base10 (DEC)
+extern "C" void printu16b10_r20();
+extern inline void dprintu16b10(uint16_t val)
 {
-    register char c asm("r19") = val;
+    register uint16_t i asm("r20") = val;
     asm volatile (
     "%~call %x1"
-    : "+r" (c) 
-    : "i" (printu8b10_r19)
+    : "+r" (i) 
+    : "i" (printu16b10_r20)
     : "r18"
     );
 }
@@ -111,13 +111,14 @@ class debugSerial
 {
 public:
     //void begin(int) {}
-    void print(char c) { dwrite(c); }
-    void print(int val, _base base = DEC)
+
+    inline void write(char c) { dwrite(c); }
+    void print(uint16_t val, _base base = DEC)
     {
-        uint8_t u8 = val;
-        if (base == DEC) dprintu8b10(u8);
-        else dprintu8b16(u8);
+        if (base == DEC) dprintu16b10(val);
+        else dprintu8b16(val);
     }
+
     void print(const __FlashStringHelper* str) { dprints_p(str); }
     /* badArg requires picoCore
     void print(const char*) 
@@ -130,14 +131,14 @@ public:
     void println(const T& val)
     {
         print(val);
-        print('\n');
+        write('\n');
     }
 
     template<typename T1, typename T2>
     void println(const T1& val, const T2& base)
     {
         print(val, base);
-        print('\n');
+        write('\n');
     }
 };
 

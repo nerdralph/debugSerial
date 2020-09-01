@@ -7,33 +7,50 @@
     subi \Rd, -(\K)
 .endm
 
-.section .text.printu8b10
+.section .text.printu16b10
 
-; print number in r19 as unsigned decimal (base 10): 17 instructions
+; print number in 21:20 as unsigned decimal (base 10): 31 instructions
+; optimized from Peter Dannegger's version
 ; clobbers r18
-.global printu8b10_r19
-printu8b10_r19:
+.global printu16b10_r20
+printu16b10_r20:
     clt                                 ; flag non-zero digit
-    ldi r18, -1 + '0'                   ; hundreds
+    ldi r18, -1 + '0'                   ; ten-thousands
 1:  inc r18
-    subi r19, 100
+    subi r20, lo8(10000)
+    sbci r21, hi8(10000)
     brcc 1b
     rcall skip_leading0
 
-    ldi r18, 10 + '0'                   ; tens
+    ldi r18, 10 + '0'                   ; thousands
 2:  dec r18
-    addi r19, 10
+    subi r20, lo8(-1000)
+    sbci r21, hi8(-1000)
     brcs 2b
     rcall skip_leading0
 
-    addi r19, '0'                       ; ones
-    mov r18, r19
-3:  rjmp write_r18
+    ldi r18, -1 + '0'                   ; hundreds
+3:  inc r18
+    subi r20, lo8(100)
+    sbci r21, hi8(100)
+    brcc 3b
+    rcall skip_leading0
+
+    ldi r18, 10 + '0'                   ; tens
+4:  dec r18
+    addi r20, 10
+    brcs 4b
+    rcall skip_leading0
+
+    addi r20, '0'                       ; ones
+    mov r18, r20
+putc:
+    rjmp write_r18
 
 skip_leading0:
-    brts 3b
+    brts putc
     cpi r18, '0'
-    brne 3b                             ; write_r18 leaves T set
+    brne putc                           ; write_r18 leaves T set
     ret
 
 
