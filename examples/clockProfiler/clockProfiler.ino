@@ -35,11 +35,13 @@ void loop()
         if ( !(CLK_PINREG & 1<<CLK_BIT) ) break;
     }
 
+    CLK_PINREG = 1<<CLK_BIT;            // disable pullup
+
     dSerial.print( F("\nbootup OSCCAL: 0x") );
     dSerial.println(bootOsc, HEX);
 
     if (count == 0) dSerial.print( F("no ") );
-    dSerial.print( F("external clock signal detected\n") );
+    dSerial.print( F("external clock detected\n") );
 
     if (count != 0) {
         for (uint8_t osctry = OSCCAL -4; osctry <= bootOsc+4; osctry++ )
@@ -53,12 +55,11 @@ void loop()
 // serial output may get garbled if timing is off more than +/-5% 
 void profile(uint8_t osctry)
 {
+    OSCCAL = osctry;
     dSerial.print( F("testing OSCCAL 0x") );
     dSerial.print(osctry, HEX);
-    OSCCAL = osctry;
     uint16_t high = 0, avg = 0, low = -1;
-    for (int i = 1000; i; i--) {
-        if ((i & 0xFF) == 0) dSerial.write('.');
+    for (int i = 250; i; i--) {
         uint16_t count = 0;
         // wait for clock low
         while (CLK_PINREG & 1<<CLK_BIT);
@@ -72,17 +73,23 @@ void profile(uint8_t osctry)
             asm("rjmp .");
             count++;
         }
-        // 8 cycles per clk phase * 2 phases
-        count *= 16;
-        if (avg == 0) avg = count;
+        // time low cycle
+        while ( !(CLK_PINREG & 1<<CLK_BIT) ) {
+            // pad loop to 8 cycles
+            asm("rjmp .");
+            count++;
+        }
+        // 8 cycles per counting loop
+        uint16_t cycles = count * 8;
+        if (avg == 0) avg = cycles;
         // running average
-        avg = avg/2 + avg/4 + count/4;
-        if (count < low) low = count;
-        if (count > high) high = count;
+        avg = avg/2 + avg/4 + avg/8 + cycles/8;
+        if (cycles < low) low = cycles;
+        if (cycles > high) high = cycles;
     }
     dSerial.print( F("\navg cycles/ms:") );
     dSerial.print(avg);
-    dSerial.print( F(", high-low:") );
+    dSerial.print( F(", high-low: ") );
     dSerial.print(high);
     dSerial.write('-');
     dSerial.println(low);
