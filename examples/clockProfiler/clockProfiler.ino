@@ -59,9 +59,12 @@ void profile(uint8_t osctry)
     OSCCAL = osctry;
     dSerial.print( F("testing OSCCAL 0x") );
     dSerial.print(osctry, HEX);
-    uint16_t high = 0, avg = 0, low = -1;
-    int i = 250;
+    uint16_t high = 0, low = -1;
+    __uint24 avg = 0;
+    // optimize calculations for 6-cycle loop
+    int i = 256 * 6;
     do {
+        if ((i & 0xFF) == 0) dSerial.write('.');
         uint16_t count = 0;
         // wait for clock low
         while (CLK_PINREG & 1<<CLK_BIT);
@@ -69,29 +72,26 @@ void profile(uint8_t osctry)
         asm ("cli");
         // wait for clock high
         while ( !(CLK_PINREG & 1<<CLK_BIT) );
-        // time high cycle
+        // time high phase
         while (CLK_PINREG & 1<<CLK_BIT) {
-            // pad loop to 8 cycles
-            asm("rjmp .");
             count++;
         }
-        // time low cycle
+        // time low phase 
         while ( !(CLK_PINREG & 1<<CLK_BIT) ) {
-            // pad loop to 8 cycles
-            asm("rjmp .");
             count++;
         }
-        // average of 16 samples
-        if (i<=16) avg += count;
-        // 8 cycles per counting loop
-        uint16_t cycles = count * 8;
+        // accumulate samples for average
+        avg += count;
+        // 6 cycles per counting loop
+        uint16_t cycles = count * 4 + count * 2;
         if (cycles < low) low = cycles;
         if (cycles > high) high = cycles;
     } while (--i);
-    dSerial.print( F(", avg cycles/ms: ") );
-    dSerial.print(avg/2);
+    dSerial.print( F(" avg cycles/ms: ") );
+    dSerial.print(avg >> 8);
     dSerial.print( F(", high-low: ") );
     dSerial.print(high);
     dSerial.write('-');
     dSerial.println(low);
 }
+
