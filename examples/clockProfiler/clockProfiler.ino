@@ -41,7 +41,7 @@ void loop()
     dSerial.print( F("\nbootup OSCCAL: 0x") );
     dSerial.println(bootOsc, HEX);
 
-    if (extclk) dSerial.print( F("no ") );
+    if (!extclk) dSerial.print( F("no ") );
     dSerial.print( F("external clock detected\n") );
 
     if (extclk) {
@@ -85,12 +85,10 @@ void profile(uint8_t osctry)
         if (i<=16) avg += count;
         // 8 cycles per counting loop
         uint16_t cycles = count * 8;
-        // running average
-        // avg = avg/2 + avg/4 + avg/8 + cycles/8;
         if (cycles < low) low = cycles;
         if (cycles > high) high = cycles;
     } while (--i);
-    dSerial.print( F(", avg cycles/ms:") );
+    dSerial.print( F(", avg cycles/ms: ") );
     dSerial.print(avg/2);
     dSerial.print( F(", high-low: ") );
     dSerial.print(high);
