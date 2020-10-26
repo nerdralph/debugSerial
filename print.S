@@ -14,7 +14,7 @@
 ; clobbers r18
 .global printu16b10_r20
 printu16b10_r20:
-    clt                                 ; flag non-zero digit
+    clt                                 ; T set for non-zero digit
     ldi r18, -1 + '0'                   ; ten-thousands
 1:  inc r18
     subi r20, lo8(10000)
