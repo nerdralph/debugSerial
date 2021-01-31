@@ -59,7 +59,7 @@ void write_r18()
     );
 }
 
-extern inline void dwrite(char ch)
+inline void dwrite(char ch)
 {
     register char c asm("r18") = ch;
     asm volatile ("%~call %x1" : "+r"(c) : "i"(write_r18));
@@ -68,7 +68,7 @@ extern inline void dwrite(char ch)
 
 // asm function in print.S - print string in flash
 extern "C" void printsp_z();
-extern inline void dprints_p(const __FlashStringHelper* s)
+inline void dprints_p(const __FlashStringHelper* s)
 {
     asm volatile (
     "%~call %x1"
@@ -81,7 +81,7 @@ extern inline void dprints_p(const __FlashStringHelper* s)
 
 // asm function in print.S - print u8(r18) base16 (HEX)
 extern "C" void printu8b16_r18();
-extern inline void dprintu8b16(uint8_t val)
+inline void dprintu8b16(uint8_t val)
 {
     register char c asm("r18") = val;
     asm volatile (
@@ -93,7 +93,7 @@ extern inline void dprintu8b16(uint8_t val)
 
 // asm function in print.S - print u16(r21:20) base10 (DEC)
 extern "C" void printu16b10_r20();
-extern inline void dprintu16b10(uint16_t val)
+inline void dprintu16b10(uint16_t val)
 {
     register uint16_t i asm("r20") = val;
     asm volatile (
@@ -110,9 +110,7 @@ enum _base {DEC = 10, HEX = 16};
 class debugSerial
 {
 public:
-    //void begin(int) {}
-
-    inline void write(char c) { dwrite(c); }
+    void write(char c) { dwrite(c); }
     void print(uint16_t val, _base base = DEC)
     {
         if (base == DEC) dprintu16b10(val);
