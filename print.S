@@ -79,11 +79,11 @@ nibbletohex:
 ; print null-terminated string in progmem, pointer in Z: 5 instructions
 ; clobbers r18 & Z
 .global printsp_z
-printsp_z_begin:
+printsp_z_write:
     rcall write_r18
 printsp_z:
     lpm r18, Z+                         ; read next char
     tst r18
-    brne printsp_z_begin
+    brne printsp_z_write
     ret
 
