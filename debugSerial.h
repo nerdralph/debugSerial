@@ -23,19 +23,24 @@
 #define bit(io)     BIT(io)
 #define port(io)    PORT(io)
 
+#if defined(__AVR_TINY__)
+#define TX_REG "r25"
+#else
+#define TX_REG "r18"
+#endif
 
 extern "C" void write_r18();
 
-// transmit character in r18, clobbers r0, leaves T set
+// transmit character in r18 (r25 on avrtiny), clobbers __tmp_reg__, leaves T set
 __attribute((weak, naked))
 void write_r18()
 {
-    register char c asm("r18");
+    register char c asm(TX_REG);
     asm volatile (
     "cbi %[tx_port], %[tx_bit]\n"       // disable pullup
     "cli\n"
     "sbi %[tx_port]-1, %[tx_bit]\n"     // start bit 
-    "in r0, %[tx_port]\n"               // save port state
+    "in __tmp_reg__, %[tx_port]\n"      // save port state
     "sec\n"                             // hold stop bit in C
     "1:\n"                              // tx bit loop
 #if DTXWAIT & 1
@@ -46,10 +51,10 @@ void write_r18()
 #endif
     // 7 cycle loop
     "bst %[c], 0\n"                     // store lsb in T
-    "bld r0, %[tx_bit]\n"
+    "bld __tmp_reg__, %[tx_bit]\n"
     "ror %[c]\n"                        // shift for next bit
     "clc\n"
-    "out %[tx_port], r0\n"
+    "out %[tx_port], __tmp_reg__\n"
     "brne 1b\n"
     "cbi %[tx_port]-1, %[tx_bit]\n"     // set to input pullup mode
     "reti\n"
@@ -61,7 +66,7 @@ void write_r18()
 
 inline void dwrite(char ch)
 {
-    register char c asm("r18") = ch;
+    register char c asm(TX_REG) = ch;
     asm volatile ("%~call %x1" : "+r"(c) : "i"(write_r18));
 }
 
@@ -74,7 +79,7 @@ inline void dprints_p(const __FlashStringHelper* s)
     "%~call %x1"
     : "+z" (s)
     : "i" (printsp_z)
-    : "r18"
+    : TX_REG
     );
 }
 
@@ -83,7 +88,7 @@ inline void dprints_p(const __FlashStringHelper* s)
 extern "C" void printu8b16_r18();
 inline void dprintu8b16(uint8_t val)
 {
-    register char c asm("r18") = val;
+    register char c asm(TX_REG) = val;
     asm volatile (
     "%~call %x1"
     : "+r" (c) 
@@ -100,7 +105,7 @@ inline void dprintu16b10(uint16_t val)
     "%~call %x1"
     : "+r" (i) 
     : "i" (printu16b10_r20)
-    : "r18"
+    : TX_REG
     );
 }
 
