@@ -9,7 +9,7 @@
 
 .section .text.printu16b10
 
-; print number in 22:21 as unsigned decimal (base 10): 31 instructions
+; print number in 23:22 as unsigned decimal (base 10): 31 instructions
 ; optimized from Peter Dannegger's version
 ; clobbers r20
 .global printu16b10_r22

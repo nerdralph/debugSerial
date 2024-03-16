@@ -23,6 +23,7 @@
 #define bit(io)     BIT(io)
 #define port(io)    PORT(io)
 
+
 extern "C" void write_r20();
 
 // transmit character in r20, clobbers __tmp_reg__, leaves T set
