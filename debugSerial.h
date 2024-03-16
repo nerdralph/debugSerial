@@ -24,18 +24,18 @@
 #define port(io)    PORT(io)
 
 
-extern "C" void write_r18();
+extern "C" void write_r20();
 
-// transmit character in r18, clobbers r0, leaves T set
+// transmit character in r20, clobbers __tmp_reg__, leaves T set
 __attribute((weak, naked))
-void write_r18()
+void write_r20()
 {
-    register char c asm("r18");
+    register char c asm("r20");
     asm volatile (
     "cbi %[tx_port], %[tx_bit]\n"       // disable pullup
     "cli\n"
     "sbi %[tx_port]-1, %[tx_bit]\n"     // start bit 
-    "in r0, %[tx_port]\n"               // save port state
+    "in __tmp_reg__, %[tx_port]\n"      // save port state
     "sec\n"                             // hold stop bit in C
     "1:\n"                              // tx bit loop
 #if DTXWAIT & 1
@@ -46,10 +46,10 @@ void write_r18()
 #endif
     // 7 cycle loop
     "bst %[c], 0\n"                     // store lsb in T
-    "bld r0, %[tx_bit]\n"
+    "bld __tmp_reg__, %[tx_bit]\n"
     "ror %[c]\n"                        // shift for next bit
     "clc\n"
-    "out %[tx_port], r0\n"
+    "out %[tx_port], __tmp_reg__\n"
     "brne 1b\n"
     "cbi %[tx_port]-1, %[tx_bit]\n"     // set to input pullup mode
     "reti\n"
@@ -61,8 +61,8 @@ void write_r18()
 
 inline void dwrite(char ch)
 {
-    register char c asm("r18") = ch;
-    asm volatile ("%~call %x1" : "+r"(c) : "i"(write_r18));
+    register char c asm("r20") = ch;
+    asm volatile ("%~call %x1" : "+r"(c) : "i"(write_r20));
 }
 
 
@@ -74,33 +74,33 @@ inline void dprints_p(const __FlashStringHelper* s)
     "%~call %x1"
     : "+z" (s)
     : "i" (printsp_z)
-    : "r18"
+    : "r20"
     );
 }
 
 
-// asm function in print.S - print u8(r18) base16 (HEX)
-extern "C" void printu8b16_r18();
+// asm function in print.S - print u8(r20) base16 (HEX)
+extern "C" void printu8b16_r20();
 inline void dprintu8b16(uint8_t val)
 {
-    register char c asm("r18") = val;
+    register char c asm("r20") = val;
     asm volatile (
     "%~call %x1"
     : "+r" (c) 
-    : "i" (printu8b16_r18)
+    : "i" (printu8b16_r20)
     );
 }
 
-// asm function in print.S - print u16(r21:20) base10 (DEC)
-extern "C" void printu16b10_r20();
+// asm function in print.S - print u16(r23:22) base10 (DEC)
+extern "C" void printu16b10_r22();
 inline void dprintu16b10(uint16_t val)
 {
-    register uint16_t i asm("r20") = val;
+    register uint16_t i asm("r22") = val;
     asm volatile (
     "%~call %x1"
     : "+r" (i) 
-    : "i" (printu16b10_r20)
-    : "r18"
+    : "i" (printu16b10_r22)
+    : "r20"
     );
 }
 
