@@ -105,11 +105,11 @@ inline void dprintu16b10(uint16_t val)
 }
 
 
-enum _base {DEC = 10, HEX = 16};
-
 class debugSerial
 {
 public:
+    enum _base {DEC = 10, HEX = 16};
+
     void write(char c) { dwrite(c); }
     void print(uint16_t val, _base base = DEC)
     {
