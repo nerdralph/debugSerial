@@ -22,7 +22,7 @@ void loop()
         dSerial.print( F("count: ") );
         dSerial.print(count);
         dSerial.print( F(" 0x") );
-        dSerial.println(count++, dSerial.HEX);
+        dSerial.println(count++, dSerial.Base16);
         delay(1000);
     }
 }

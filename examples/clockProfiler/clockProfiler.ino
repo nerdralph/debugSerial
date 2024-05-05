@@ -39,7 +39,7 @@ void loop()
     CLK_PINREG = 1<<CLK_BIT;            // disable pullup
 
     dSerial.print( F("\nbootup OSCCAL: 0x") );
-    dSerial.println(bootOsc, HEX);
+    dSerial.println(bootOsc, dSerial.Base16);
 
     if (!extclk) dSerial.print( F("no ") );
     dSerial.print( F("external clock detected\n") );
@@ -58,7 +58,7 @@ void profile(uint8_t osctry)
 {
     OSCCAL = osctry;
     dSerial.print( F("testing OSCCAL 0x") );
-    dSerial.print(osctry, HEX);
+    dSerial.print(osctry, dSerial.Base16);
     uint16_t high = 0, low = -1;
     __uint24 avg = 0;
     // optimize calculations for 6-cycle loop

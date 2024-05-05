@@ -79,7 +79,7 @@ inline void dprints_p(const __FlashStringHelper* s)
 }
 
 
-// asm function in print.S - print u8(r20) base16 (HEX)
+// asm function in print.S - print u8(r20) Base16 (hex)
 extern "C" void printu8b16_r20();
 inline void dprintu8b16(uint8_t val)
 {
@@ -91,7 +91,7 @@ inline void dprintu8b16(uint8_t val)
     );
 }
 
-// asm function in print.S - print u16(r23:22) base10 (DEC)
+// asm function in print.S - print u16(r23:22) Base10 (decimal)
 extern "C" void printu16b10_r22();
 inline void dprintu16b10(uint16_t val)
 {
@@ -108,12 +108,12 @@ inline void dprintu16b10(uint16_t val)
 class debugSerial
 {
 public:
-    enum _base {DEC = 10, HEX = 16};
+    enum _base {Base10 = 10, Base16 = 16};
 
     void write(char c) { dwrite(c); }
-    void print(uint16_t val, _base base = DEC)
+    void print(uint16_t val, _base base = Base10)
     {
-        if (base == DEC) dprintu16b10(val);
+        if (base == Base10) dprintu16b10(val);
         else dprintu8b16(val);
     }
 
